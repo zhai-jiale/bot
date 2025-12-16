@@ -1,7 +1,7 @@
 import { AllHandlers, Structs } from "node-napcat-ts";
-import { randomPickFromSpaceStr } from "../utils/StringUtils";
-import { napcat } from "../napcat/napcat";
-import { callArkChatApi } from "../utils/callOpenAI";
+import { randomPickFromSpaceStr } from "../utils/StringUtils.js";
+import { napcat } from "../napcat/napcat.js";
+import { callArkChatApi } from "../utils/callOpenAI.js";
 type CommandHandler = (context: AllHandlers["message.group"]) => Promise<void>;
 const COMMANDS: Record<string, CommandHandler> = {
     test: testCommandHandler,
@@ -32,6 +32,10 @@ async function groupMsgHandler(context: AllHandlers["message.group"]): Promise<v
         await context.quick_action([Structs.text(`${error}`)]);
     }
 }
+/** * 判断消息中是否包含at机器人的内容
+ * @param {Object} msg - 消息对象，包含消息内容和发送者信息
+ * @returns {boolean} 如果消息中包含at机器人则返回true，否则返回false
+ */
 function isAtSelf(msg: AllHandlers["message.group"]): boolean {
     return msg.message.some((element) => {
         return element.type === 'at' && element.data.qq === msg.self_id + '';
@@ -43,18 +47,26 @@ function isAtSelf(msg: AllHandlers["message.group"]): boolean {
  * @returns {string} 去除at后的纯文本
  */
 function getPureText(message: AllHandlers['message.group']['message']): string {
-  // 步骤1：过滤掉所有type为at的项，只保留text类型的项
-  const textItems = message.filter(item => item.type === "text");
-  
-  // 步骤2：提取每个text项的文本内容
-  const textContents = textItems.map(item => item.data.text);
-  
-  // 步骤3：拼接所有文本（按原顺序），返回最终纯文本
-  return textContents.join("");
+    // 步骤1：过滤掉所有type为at的项，只保留text类型的项
+    const textItems = message.filter(item => item.type === "text");
+
+    // 步骤2：提取每个text项的文本内容
+    const textContents = textItems.map(item => item.data.text);
+
+    // 步骤3：拼接所有文本（按原顺序），返回最终纯文本
+    return textContents.join("");
 }
+/**
+ * 
+ * @param msg 
+ */
 async function testCommandHandler(msg: AllHandlers["message.group"]) {
     await msg.quick_action([Structs.text('测试成功喵~')]);
 }
+/**
+ * 
+ * @param msg 
+ */
 async function rollCommandHandler(msg: AllHandlers["message.group"]) {
     const resp = randomPickFromSpaceStr(msg.raw_message)
     await napcat.send_group_msg({
