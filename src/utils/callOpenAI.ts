@@ -16,31 +16,27 @@ async function callArkChatApi(prompt: string): Promise<string> {
         "role": "user",
         "content": prompt
     })
-    try {
-        const config = {
-            url: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${ARK_API_KEY}`
-            },
-            data: {
-                "model": "doubao-seed-1-6-lite-251015",
-                "messages": historicalMessages,
-                "max_tokens": 256,
-                "reasoning_effort": "low",
-                "temperature": 0.8
-            }
-        };
-        const response = await axios(config);
-        historicalMessages.push({
-            "role": "assistant",
-            "content": response.data.choices[0].message.content
-        })
-        return response.data.choices[0].message.content;
+    const config = {
+        url: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${ARK_API_KEY}`
+        },
+        data: {
+            "model": "doubao-seed-1-6-lite-251015",
+            "messages": historicalMessages,
+            "max_tokens": 256,
+            "reasoning_effort": "low",
+            "temperature": 0.8
+        }
+    };
+    const response = await axios(config);
+    historicalMessages.push({
+        "role": "assistant",
+        "content": response.data.choices[0].message.content
+    })
+    return response.data.choices[0].message.content;
 
-    } catch (error: any) {
-        throw error; // 按需抛出错误，让上层处理
-    }
 }
 export { callArkChatApi };
